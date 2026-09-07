@@ -1,4 +1,5 @@
-import { Map as MapLibreMap, NavigationControl, addProtocol } from 'maplibre-gl';
+import { Map as MapLibreMap, NavigationControl, addProtocol, setWorkerUrl } from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
@@ -39,6 +40,8 @@ window.addEventListener('error', (e) => {
   if (startupErrors.length < 20) startupErrors.push(String(e.error?.stack ?? e.message));
 });
 Object.assign(window as unknown as Record<string, unknown>, { startupErrors });
+
+setWorkerUrl(workerUrl);
 
 addProtocol('pmtiles', new Protocol().tile);
 
