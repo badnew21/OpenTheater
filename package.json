@@ -1,0 +1,37 @@
+{
+  "name": "theatre",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "host": "node server/host.mjs",
+    "worldgen": "node --max-old-space-size=8192 tools/genmap.mjs && node tools/terrain.mjs && node --max-old-space-size=8192 tools/coastline.mjs && node --max-old-space-size=6144 tools/network.mjs && node tools/oob.mjs",
+    "bench": "node tools/bench-reader.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  },
+  "dependencies": {
+    "@mapbox/vector-tile": "^3.0.0",
+    "d3-delaunay": "^6.0.4",
+    "d3-geo": "^3.1.1",
+    "d3-geo-projection": "^4.0.0",
+    "maplibre-gl": "^6.7.0",
+    "pbf": "^5.1.2",
+    "pmtiles": "^4.5.0",
+    "polygon-clipping": "^0.15.7",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "private": true
+}
