@@ -45,10 +45,11 @@ export class RoadNetwork {
   }
 
   static async load(): Promise<RoadNetwork> {
+    const base = import.meta.env.BASE_URL || '/';
     const fresh: RequestInit = { cache: 'no-store' };
     const [meta, buf] = await Promise.all([
-      fetch('/data/roads.json', fresh).then((r) => r.json() as Promise<RoadMeta>),
-      fetch('/data/roads.bin', fresh).then((r) => r.arrayBuffer()),
+      fetch(`${base}data/roads.json`, fresh).then((r) => r.json() as Promise<RoadMeta>),
+      fetch(`${base}data/roads.bin`, fresh).then((r) => r.arrayBuffer()),
     ]);
     const { nodes: n, edges: e, provinces: p } = meta;
     let o = 0;

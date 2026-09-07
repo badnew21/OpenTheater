@@ -45,10 +45,11 @@ export class World {
     // Province ids are array positions shared between these two files, so a
     // stale copy of either silently mismatches every province on the map.
     // Never let the HTTP cache serve them.
+    const base = import.meta.env.BASE_URL || '/';
     const fresh: RequestInit = { cache: 'no-store' };
     const [data, geo] = await Promise.all([
-      fetch('/data/world.json', fresh).then((r) => r.json() as Promise<WorldData>),
-      fetch('/data/provinces.geojson', fresh).then((r) => r.json() as Promise<GeoJSON.FeatureCollection>),
+      fetch(`${base}data/world.json`, fresh).then((r) => r.json() as Promise<WorldData>),
+      fetch(`${base}data/provinces.geojson`, fresh).then((r) => r.json() as Promise<GeoJSON.FeatureCollection>),
     ]);
     return new World(data, geo);
   }

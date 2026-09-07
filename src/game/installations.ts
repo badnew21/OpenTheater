@@ -27,7 +27,8 @@ export class Installations {
   }
 
   static async load(): Promise<Installations> {
-    const data = await fetch('/data/installations.json', { cache: 'no-store' }).then((r) => r.json());
+    const base = import.meta.env.BASE_URL || '/';
+    const data = await fetch(`${base}data/installations.json`, { cache: 'no-store' }).then((r) => r.json());
     return new Installations(data.installations as Installation[]);
   }
 

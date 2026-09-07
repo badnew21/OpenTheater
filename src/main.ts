@@ -44,7 +44,7 @@ addProtocol('pmtiles', new Protocol().tile);
 
 const map = new MapLibreMap({
   container: 'map',
-  style: buildStyle('pmtiles://https://demo-bucket.protomaps.com/v4.pmtiles'),
+  style: buildStyle('pmtiles://https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'),
   center: [12, 50],
   zoom: 4.2,
   minZoom: 1.4,
@@ -80,7 +80,8 @@ async function boot() {
 
   // real names and garrisons, where Wikidata knows them
   try {
-    const oob = await fetch('/data/oob.json', { cache: 'no-store' }).then((r) => r.json());
+    const base = import.meta.env.BASE_URL || '/';
+    const oob = await fetch(`${base}data/oob.json`, { cache: 'no-store' }).then((r) => r.json());
     const applied = applyOrderOfBattle(scn, oob.units);
     console.log(`[oob] ${applied} formations given real identities from ${oob.units.length} records`);
   } catch (err) {
