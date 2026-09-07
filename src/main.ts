@@ -30,6 +30,7 @@ import { TopBar } from './ui/topbar';
 import { UnitCard } from './ui/unitcard';
 import { TechTree } from './ui/techtree';
 import { mountHud } from './ui/hud';
+import { GroundMode } from './ground/mode';
 
 const DEBUG = new URLSearchParams(location.search).has('debug');
 
@@ -257,6 +258,41 @@ async function boot() {
       political.rebuildFrontline();
     },
   });
+
+  // --- the ground -----------------------------------------------------------
+  // Leaving the map for a single province. The campaign clock stops while you
+  // are down there, the way a battle stops it in a Bannerlord campaign, and
+  // whatever speed you were running at comes back when you climb out.
+  let speedBeforeGround = 0;
+  const groundMode = new GroundMode(world, scn, () => playerId, {
+    status: (msg) => hud.setStatus(msg),
+    onExit: () => {
+      sim.speed = speedBeforeGround;
+      bar.update();
+      map.resize();
+      hud.setStatus('back on the map');
+    },
+  });
+
+  /** Which province to deploy into: what is selected, then what is hovered. */
+  const provinceToEnter = (): number | null => {
+    for (const id of overlay.selected) {
+      const d = sim.byId.get(id);
+      if (d) return d.province;
+    }
+    if (lastHoverProvince != null) return lastHoverProvince;
+    const c = map.getCenter();
+    return world.provinceAt(c.lng, c.lat);
+  };
+
+  const enterGround = () => {
+    const province = provinceToEnter();
+    if (province == null) { hud.setStatus('no ground there to stand on'); return; }
+    speedBeforeGround = sim.speed;
+    sim.speed = 0;
+    bar.update();
+    groundMode.enter(province);
+  };
 
   // --- interaction ---------------------------------------------------------
   let selectedMarker: ReturnType<UnitOverlay['hitTest']> = null;
@@ -509,6 +545,9 @@ async function boot() {
 
   window.addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+    // the ground mode has its own controls and must not also drive the map
+    if (groundMode.active) return;
+    if (e.key === 'e' || e.key === 'E') { enterGround(); return; }
     if (e.key === 'f' || e.key === 'F') { startPlan('front'); return; }
     if (e.key === 'i' || e.key === 'I') { startPlan('invasion'); return; }
     if (e.key === 'b' || e.key === 'B') { startPlan('fallback'); return; }
@@ -621,6 +660,13 @@ async function boot() {
   const frame = (now: number) => {
     const dt = Math.min(0.25, (now - last) / 1000);
     last = now;
+    // On the ground, the map is hidden behind the 3D view: stepping the
+    // overlay and the frontline would be work nobody can see.
+    if (groundMode.active) {
+      groundMode.frame(dt);
+      requestAnimationFrame(frame);
+      return;
+    }
     const before = sim.date.getTime();
     sim.update(dt);
     const elapsedDays = (sim.date.getTime() - before) / 86_400_000;
@@ -697,7 +743,7 @@ async function boot() {
 
   Object.assign(window as unknown as Record<string, unknown>,
     { map, world, scn, sim, overlay, plans, overlays, layers, demo, political,
-      installations, production, armies, air });
+      installations, production, armies, air, groundMode });
   document.body.dataset.ready = '1';
 }
 

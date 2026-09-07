@@ -314,3 +314,85 @@ canvas.unit-overlay { position: absolute; inset: 0; pointer-events: none; z-inde
 #eventlog .diplomacy .ei { color: #8fb8d8; }
 #eventlog .air .ei { color: #61c8ff; }
 #hud.cinematic #eventlog { display: none; }
+
+/* --- ground mode --------------------------------------------------------- */
+/*
+ * The 3D view sits above the map canvas but below the HUD, so the panels keep
+ * working while the map itself is completely hidden behind it.
+ */
+#ground {
+  position: absolute; inset: 0; z-index: 4;
+  display: block; width: 100%; height: 100%;
+  cursor: crosshair;
+}
+#hud.ground #layers,
+#hud.ground #inspect,
+#hud.ground #nationpanel,
+#hud.ground #unitcard,
+#hud.ground #hint,
+#hud.ground #armybar,
+#hud.ground #eventlog,
+#hud.ground #scalebar,
+#hud.ground #production,
+#hud.ground #techtree { display: none; }
+#hud.ground #topbar { opacity: 0.32; }
+
+#groundhud { position: absolute; inset: 0; pointer-events: none; }
+#groundhud .gpanel { opacity: 0; transition: opacity 0.5s ease 0.35s; }
+#groundhud.ready .gpanel { opacity: 1; }
+
+#groundwhere { top: 52px; left: 12px; width: 196px; }
+#groundforce { top: 52px; right: 12px; width: 196px; }
+#groundhud .title { color: var(--gold); letter-spacing: 0.12em; margin-bottom: 5px; }
+#groundhud.danger #groundforce { border-color: rgba(196, 85, 63, 0.75); }
+#groundhud.danger #groundforce .title { color: #d97a63; }
+
+#groundforce .leave {
+  width: 100%; margin-top: 9px; background: var(--panel-2); color: var(--dim);
+  border: 1px solid var(--line); font: inherit; font-size: 10px;
+  letter-spacing: 0.12em; padding: 5px 8px; cursor: pointer;
+}
+#groundforce .leave:hover { border-color: var(--gold); color: var(--gold); }
+
+/* the card that names the ground you have just walked onto, then gets out of
+   the way - it is a title, not a readout */
+#groundhud .card {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  text-align: center; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
+  animation: groundcard 3.4s ease forwards;
+}
+#groundhud .card .place {
+  font-size: 34px; letter-spacing: 0.16em; color: #f2e7cd; font-weight: 500;
+}
+#groundhud .card .sub {
+  font-size: 11px; letter-spacing: 0.34em; color: var(--gold); margin-top: 6px;
+  text-transform: uppercase;
+}
+@keyframes groundcard {
+  0% { opacity: 0; transform: translate(-50%, -46%); }
+  18% { opacity: 1; transform: translate(-50%, -50%); }
+  72% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -54%); }
+}
+
+#groundhud .ghint {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  color: var(--dim); font-size: 10px; letter-spacing: 0.02em;
+  background: rgba(12, 15, 18, 0.6); padding: 5px 12px; border-radius: 6px;
+  opacity: 0; transition: opacity 0.4s ease 0.6s;
+}
+#groundhud.ready .ghint { opacity: 1; }
+#groundhud .ghint b { color: var(--ink); font-weight: 500; }
+
+/* shown only while the pointer is free, which is the one moment the hint is
+   actually needed */
+#groundhud .grab {
+  position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%);
+  color: var(--gold); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  background: rgba(12, 15, 18, 0.8); border: 1px solid var(--line);
+  padding: 6px 14px; border-radius: 6px; opacity: 0;
+  transition: opacity 0.3s;
+}
+#groundhud.ready .grab { opacity: 1; }
+#groundhud.ready.locked .grab { opacity: 0; }
+#hud.ground #status { display: none; }

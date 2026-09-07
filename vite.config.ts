@@ -6,7 +6,17 @@ function worldTiles() {
   return {
     name: 'world-tiles',
     configureServer(server: any) {
-      const world = createWorld();
+      // The archive is a local file that not every checkout has. Without it
+      // the map falls back to its remote source and everything else still
+      // works, so a missing archive must not take the whole dev server down.
+      let world: ReturnType<typeof createWorld>;
+      try {
+        world = createWorld();
+      } catch (err) {
+        console.warn(`[world] no local archive (${(err as Error).message}); `
+          + 'serving the app without it - set WORLD_PMTILES to use one');
+        return;
+      }
       console.log(`[world] ${world.pm.header.minZoom}-${world.pm.header.maxZoom} ${world.pm.metadata.name}`);
       server.middlewares.use((req: any, res: any, next: any) => {
         Promise.resolve(world.handle(req, res)).then((handled) => { if (!handled) next(); }, next);

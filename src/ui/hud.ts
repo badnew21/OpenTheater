@@ -24,7 +24,8 @@ export function mountHud(map: MapLibreMap, world: World, scn: Scenario) {
     <div id="hint">
       <b>click</b> select · <b>right click</b> order · <b>shift+drag</b> box select · <b>drag</b> pan<br>
       <b>F</b> front · <b>I</b> invasion · <b>B</b> fallback · <b>G</b> globe<br>
-      <b>space</b> pause · <b>1-5</b> speed · <b>T</b> research · <b>C</b> follow · <b>P</b> political · <b>U</b> units
+      <b>space</b> pause · <b>1-5</b> speed · <b>T</b> research · <b>C</b> follow · <b>P</b> political · <b>U</b> units<br>
+      <b>E</b> take the field on foot
     </div>`);
   const status = el(`<div id="status"></div>`);
   hud.append(inspect, scalebar, hint, status);
