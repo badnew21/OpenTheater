@@ -56,13 +56,14 @@ const COVER_COLOR: ExpressionSpecification = ['match', ['get', 'kind'],
   'transparent'] as unknown as ExpressionSpecification;
 
 export function buildStyle(tilesUrl: string): StyleSpecification {
+  const base = import.meta.env.BASE_URL || '/';
   const v = (layer: string, id: string, extra: Record<string, unknown>) =>
     ({ id, source: 'world', 'source-layer': layer, ...extra });
 
   return {
     version: 8,
     name: 'Theatre',
-    glyphs: '/fonts/{fontstack}/{range}.pbf',
+    glyphs: `${base}fonts/{fontstack}/{range}.pbf`,
     projection: { type: 'mercator' },
     light: { anchor: 'viewport', position: [1.3, 210, 32], intensity: 0.3, color: '#fff4dc' },
     sources: {

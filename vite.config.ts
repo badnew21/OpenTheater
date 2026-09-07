@@ -16,6 +16,7 @@ function worldTiles() {
 }
 
 export default defineConfig({
+  base: '/OpenTheater/',
   plugins: [worldTiles()],
   // MapLibre 6 loads its tile worker as a sibling module next to its entry
   // point. Pre-bundling moves the entry into .vite/deps and the worker is then
