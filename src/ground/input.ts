@@ -11,7 +11,12 @@ export class Input {
   private dx = 0;
   private dy = 0;
   private wheel = 0;
+  private dragging = false;
+  private lastX = 0;
+  private lastY = 0;
   locked = false;
+  /** true while the mouse can steer the camera, by lock or by drag */
+  get steering() { return this.locked || this.dragging; }
   /** set while the pointer is locked, so the mode can show the right hint */
   onLockChange: ((locked: boolean) => void) | null = null;
 
@@ -25,9 +30,19 @@ export class Input {
   private readonly onKeyUp = (e: KeyboardEvent) => { this.keys.delete(e.code); };
 
   private readonly onMouseMove = (e: MouseEvent) => {
-    if (!this.locked) return;
-    this.dx += e.movementX;
-    this.dy += e.movementY;
+    if (this.locked) {
+      this.dx += e.movementX;
+      this.dy += e.movementY;
+      return;
+    }
+    // Dragging is the fallback for anywhere pointer lock is refused - an
+    // embedded frame without allow="pointer-lock", most obviously. Without it
+    // the mouse simply does nothing and the mode looks broken.
+    if (!this.dragging) return;
+    this.dx += e.clientX - this.lastX;
+    this.dy += e.clientY - this.lastY;
+    this.lastX = e.clientX;
+    this.lastY = e.clientY;
   };
 
   private readonly onWheel = (e: WheelEvent) => {
@@ -41,11 +56,21 @@ export class Input {
     this.onLockChange?.(this.locked);
   };
 
-  // a click anywhere on the view takes the pointer back
-  private readonly onMouseDown = () => { if (!this.locked) this.requestLock(); };
+  // a click anywhere on the view takes the pointer back, and starts a drag in
+  // case it does not come
+  private readonly onMouseDown = (e: MouseEvent) => {
+    if (this.locked) return;
+    this.dragging = true;
+    this.lastX = e.clientX;
+    this.lastY = e.clientY;
+    this.canvas.focus();
+    this.requestLock();
+  };
+
+  private readonly onMouseUp = () => { this.dragging = false; };
 
   // holding a key while the tab loses focus otherwise leaves it held forever
-  private readonly onBlur = () => this.keys.clear();
+  private readonly onBlur = () => { this.keys.clear(); this.dragging = false; };
 
   constructor(private canvas: HTMLCanvasElement) {}
 
@@ -56,6 +81,7 @@ export class Input {
     window.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
     this.canvas.addEventListener('mousedown', this.onMouseDown);
+    window.addEventListener('mouseup', this.onMouseUp);
     this.canvas.addEventListener('wheel', this.onWheel, { passive: false });
   }
 
@@ -66,8 +92,10 @@ export class Input {
     window.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('pointerlockchange', this.onPointerLockChange);
     this.canvas.removeEventListener('mousedown', this.onMouseDown);
+    window.removeEventListener('mouseup', this.onMouseUp);
     this.canvas.removeEventListener('wheel', this.onWheel);
     this.keys.clear();
+    this.dragging = false;
     this.releaseLock();
   }
 

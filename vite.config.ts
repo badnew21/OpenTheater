@@ -34,5 +34,11 @@ export default defineConfig({
   optimizeDeps: { exclude: ['maplibre-gl'] },
   // the harness assigns a port; fall back to 5180 when run by hand
   server: { port: Number(process.env.PORT) || 5180, host: '127.0.0.1' },
-  build: { target: 'es2022', sourcemap: true },
+  build: {
+    target: 'es2022',
+    sourcemap: true,
+    // the ground mode also ships as a page of its own: it needs none of the
+    // map data, so it can be opened and played straight from a static host
+    rollupOptions: { input: { main: 'index.html', ground: 'ground.html' } },
+  },
 });
